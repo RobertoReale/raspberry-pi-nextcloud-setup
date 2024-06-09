@@ -18,7 +18,84 @@ Usage:
 - Contributions:
 - Contributions and suggestions are welcome! Feel free to fork this repository, make changes, and submit a pull request.
 
-DISCLAIMER:
+# Add external storage
+If you want to add another external drive to Nextcloud in the future, you need to follow these steps:
+
+### 1. Prepare the External Drive
+
+1. **Connect the External Drive:**
+   - Plug your new external drive into a USB port on your Raspberry Pi.
+
+2. **Format the Drive:**
+   - Determine the device name of your new drive by running:
+     ```
+     sudo fdisk -l
+     ```
+   - Identify your new drive (e.g., `/dev/sdb` or `/dev/sdc1`) and format it with a suitable filesystem (e.g., ext4):
+     ```
+     sudo mkfs.ext4 /dev/sdb1
+     ```
+
+### 2. Mount the External Drive
+
+1. **Create a Mount Point:**
+   - Create a directory where you want to mount the new drive:
+     ```
+     sudo mkdir /mnt/new_nextcloud_data
+     ```
+
+2. **Mount the Drive:**
+   - Mount the drive to this directory:
+     ```
+     sudo mount /dev/sdb1 /mnt/new_nextcloud_data
+     ```
+
+3. **Ensure Automatic Mounting:**
+   - Edit the `/etc/fstab` file to make sure the new drive mounts automatically at boot:
+     ```
+     sudo nano /etc/fstab
+     ```
+   - Add the following line (adjust for the correct device and mount point):
+     ```
+     /dev/sdb1 /mnt/new_nextcloud_data ext4 defaults 0 2
+     ```
+   - Save and close the file.
+
+### 3. Add the External Drive to Nextcloud
+
+1. **Change Permissions:**
+   - Set the correct ownership for the new data directory:
+     ```
+     sudo chown -R www-data:www-data /mnt/new_nextcloud_data
+     ```
+
+2. **Add the New External Storage in Nextcloud:**
+   - Log in to Nextcloud as an admin.
+   - Go to `Settings` (click on your profile picture in the top right corner, then click `Settings`).
+   - Scroll down to `Admin` section and click on `External storage`.
+   - In the `External storage` section, configure the new external storage:
+     - **Folder name**: Give a name for the new external storage.
+     - **External storage**: Select `Local`.
+     - **Configuration**: Enter the path to the new mount point (e.g., `/mnt/new_nextcloud_data`).
+     - **Authentication**: Leave it blank.
+     - **Available for**: Select which users or groups can access this external storage.
+
+3. **Save the Configuration:**
+   - Click on the check mark to save the configuration.
+   - You should now see the new external storage in your Nextcloud files.
+
+### 4. Verify the Setup
+
+1. **Check Mount Points:**
+   - Verify that both the old and new external drives are mounted correctly:
+     ```
+     df -h
+     ```
+
+2. **Test Access:**
+   - Log in to Nextcloud and ensure you can access files on both the original and new external storage.
+
+# DISCLAIMER:
 This script is provided as-is and may require customization based on your specific setup. Use at your own risk.
 There are some points that may require attention:
 
