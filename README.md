@@ -41,13 +41,13 @@ If you want to add another external drive to Nextcloud in the future, you need t
 1. **Create a Mount Point:**
    - Create a directory where you want to mount the new drive:
      ```
-     sudo mkdir /mnt/new_nextcloud_data
+     sudo mkdir /mnt/new_nextcloud/data
      ```
 
 2. **Mount the Drive:**
-   - Mount the drive to this directory:
+   - Mount the drive to this directory. Select the correct drive (e.g., `/dev/sdb1`):
      ```
-     sudo mount /dev/sdb1 /mnt/new_nextcloud_data
+     sudo mount /dev/sdb1 /mnt/new_nextcloud/data
      ```
 
 3. **Ensure Automatic Mounting:**
@@ -55,9 +55,9 @@ If you want to add another external drive to Nextcloud in the future, you need t
      ```
      sudo nano /etc/fstab
      ```
-   - Add the following line (adjust for the correct device and mount point):
+   - Add the following line (adjust for the correct device and mount point). Select the correct drive (e.g., `/dev/sdb1`):
      ```
-     /dev/sdb1 /mnt/new_nextcloud_data ext4 defaults 0 2
+     /dev/sdb1 /mnt/new_nextcloud/data ext4 defaults 0 2
      ```
    - Save and close the file.
 
@@ -66,7 +66,7 @@ If you want to add another external drive to Nextcloud in the future, you need t
 1. **Change Permissions:**
    - Set the correct ownership for the new data directory:
      ```
-     sudo chown -R www-data:www-data /mnt/new_nextcloud_data
+     sudo chown -R www-data:www-data /mnt/new_nextcloud/data
      ```
 
 2. **Add the New External Storage in Nextcloud:**
@@ -76,7 +76,7 @@ If you want to add another external drive to Nextcloud in the future, you need t
    - In the `External storage` section, configure the new external storage:
      - **Folder name**: Give a name for the new external storage.
      - **External storage**: Select `Local`.
-     - **Configuration**: Enter the path to the new mount point (e.g., `/mnt/new_nextcloud_data`).
+     - **Configuration**: Enter the path to the new mount point (e.g., `/mnt/new_nextcloud/data`).
      - **Authentication**: Leave it blank.
      - **Available for**: Select which users or groups can access this external storage.
 
