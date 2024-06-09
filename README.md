@@ -18,5 +18,20 @@ Usage:
 - Contributions:
 - Contributions and suggestions are welcome! Feel free to fork this repository, make changes, and submit a pull request.
 
-Disclaimer:
+DISCLAIMER:
 This script is provided as-is and may require customization based on your specific setup. Use at your own risk.
+There are some points that may require attention:
+
+1. **MySQL Security**: After running `mysql_secure_installation`, it would be a good idea to check if remote access to MySQL is disabled, especially if this server is not intended to be accessible from the external network.
+
+2. **SSL Configuration**: Using self-generated certificates may be acceptable for a test environment, but for a production environment it is best to obtain a signed certificate from a trusted Certification Authority (CA).
+
+3. **Auto-mount external disk**: Make sure the external disk is mounted correctly when the system boots. You may want to check the mount options in the `/etc/fstab` file to ensure they are appropriate for your specific use case.
+
+4. **Cron Job for Nextcloud**: The cron job execution frequency (every 15 minutes) may be suitable for many installations, but may need to be adjusted based on the specific needs of your environment.
+
+5. **Error Control**: Be sure to include error handling in your code, especially in system operations and MySQL commands, to ensure that any problems are handled appropriately.
+
+6. **Backup and Recovery**: Make sure you have a backup and recovery plan in place, especially before making significant changes to your system such as installing and configuring new services.
+
+Always remember to run your code in a test environment before deploying it to a production environment and take necessary precautions to ensure system security and reliability.
