@@ -29,7 +29,7 @@ If you want to add another external drive to Nextcloud in the future, you need t
 2. **Format the Drive:**
    - Determine the device name of your new drive by running:
      ```
-     sudo fdisk -l
+     lsblk
      ```
    - Identify your new drive (e.g., `/dev/sdb` or `/dev/sdc1`) and format it with a suitable filesystem (e.g., ext4):
      ```
