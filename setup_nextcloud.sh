@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Error Handling
+set -euo pipefail
+
 # Define variables
 read -p "Enter the database name (e.g., nextcloud): " DB_NAME
 read -p "Enter the database user (e.g., nextclouduser): " DB_USER
@@ -16,7 +19,7 @@ sudo apt update -y && sudo apt upgrade -y
 
 # Install Apache, MariaDB, and PHP
 echo "Installing Apache, MariaDB, and PHP..."
-sudo apt install apache2 mariadb-server libapache2-mod-php php-gd php-mysql php-curl php-mbstring php-intl php-gmp php-bcmath php-xml php-imagick php-zip -y
+sudo apt install apache2 mariadb-server libapache2-mod-php php-gd php-mysql php-curl php-mbstring php-intl php-gmp php-bcmath php-xml php-imagick php-zip wget ufw -y
 
 # Enable and start Apache and MariaDB
 sudo systemctl enable apache2
@@ -28,11 +31,12 @@ sudo systemctl start mariadb
 echo "Securing MariaDB..."
 sudo mysql_secure_installation
 
-# Create database and user for Nextcloud
+# Create database and user for Nextcloud if not exists
 echo "Configuring MariaDB for Nextcloud..."
-sudo mysql -u root -p <<EOF
-CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD';
-CREATE DATABASE $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+sudo mysql -u root -p"$DB_PASSWORD" <<EOF
+
+CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD';
 GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
@@ -42,9 +46,15 @@ EOF
 echo "Downloading Nextcloud..."
 wget https://download.nextcloud.com/server/releases/latest.tar.bz2
 
+# Check if download succeeded
+if [ $? -ne 0 ]; then
+    echo "Failed to download Nextcloud. Exiting."
+    exit 1
+fi
+
 # Extract and move Nextcloud
 echo "Extracting and moving Nextcloud..."
-tar -xjvf latest.tar.bz2
+sudo tar -xjvf latest.tar.bz2
 sudo mv nextcloud $NEXTCLOUD_DIR
 
 # Set permissions
@@ -112,12 +122,11 @@ sudo -u www-data php $NEXTCLOUD_DIR/occ config:system:set file_chunking.split_si
 # Restart Apache to apply PHP changes
 sudo systemctl restart apache2
 
-# Configure firewall
+# Configure firewall if not enabled
 echo "Configuring firewall..."
-sudo apt install ufw -y
+sudo ufw status | grep -q inactive && sudo ufw enable
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
-sudo ufw enable
 
 # Additional Security and Performance Tweaks
 echo "Applying additional security and performance tweaks..."
@@ -138,7 +147,9 @@ sudo mount $external_disk /mnt/external_disk1
 sudo chown -R www-data:www-data /mnt/external_disk1
 sudo chmod -R 755 /mnt/external_disk1
 
-# Configure fstab for automatic mounting
-sudo bash -c "echo '$external_disk /mnt/external_disk1 ext4 defaults 0 2' >> /etc/fstab"
+# Configure fstab for automatic mounting if not configured
+if ! grep -q "$external_disk /mnt/external_disk1 ext4 defaults 0 2" /etc/fstab; then
+    sudo bash -c "echo '$external_disk /mnt/external_disk1 ext4 defaults 0 2' >> /etc/fstab"
+fi
 
 echo "Configuration complete. Check that Nextcloud is working properly. Add the external drive to Nextcloud using the External Storage app."
