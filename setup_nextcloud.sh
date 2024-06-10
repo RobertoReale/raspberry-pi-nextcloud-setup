@@ -99,8 +99,7 @@ sudo a2enmod rewrite headers env dir mime ssl
 sudo a2enmod ssl
 sudo a2ensite default-ssl
 
-# Enable HTTPS redirection
-sudo bash -c 'sed -i "/ErrorLog \${APACHE_LOG_DIR}\/error.log/i RewriteEngine On\nRewriteCond %{HTTPS} off\nRewriteRule ^(.*)$ https://%{HTTP_HOST}\$1 [R=301,L]\n" /etc/apache2/sites-available/000-default.conf'
+# Enable HTTPS redirection - Force SSL usage on Nextcloud:
 sudo bash -c 'sed -i "/ErrorLog \${APACHE_LOG_DIR}\/error.log/i RewriteEngine On\nRewriteCond %{HTTPS} off\nRewriteRule ^(.*)$ https://%{HTTP_HOST}\$1 [R=301,L]\n" /etc/apache2/sites-available/nextcloud.conf'
 
 # Disable the default Apache site
@@ -108,6 +107,7 @@ sudo a2dissite 000-default.conf
 
 # Restart Apache
 echo "Restarting Apache..."
+sudo a2enmod rewrite
 sudo systemctl restart apache2
 
 # Complete installation via web interface
