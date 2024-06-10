@@ -12,8 +12,8 @@ Features:
 
 Usage:
 - Clone this repository to your Raspberry Pi.
-- Make the script executable (chmod +x nextcloud_setup.sh).
-- Run the script (./nextcloud_setup.sh) and follow the prompts.
+- Make the script executable (chmod +x setup_nextcloud.sh).
+- Run the script (./setup_nextcloud.sh) and follow the prompts.
 - Access Nextcloud via the provided IP address and complete the setup via the web interface.
 - Contributions:
 - Contributions and suggestions are welcome! Feel free to fork this repository, make changes, and submit a pull request.
