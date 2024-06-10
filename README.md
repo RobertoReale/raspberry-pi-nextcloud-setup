@@ -50,7 +50,13 @@ If you want to add another external drive to Nextcloud in the future, you need t
      sudo mount /dev/sdb1 /mnt/new_nextcloud/data
      ```
 
-3. **Ensure Automatic Mounting:**
+2. **Set Permissions:**
+     ```
+     sudo chown -R www-data:www-data /mnt/new_nextcloud/data
+     sudo chmod -R 755 /mnt/new_nextcloud/data
+     ```
+
+4. **Ensure Automatic Mounting:**
    - Edit the `/etc/fstab` file to make sure the new drive mounts automatically at boot:
      ```
      sudo nano /etc/fstab
@@ -63,13 +69,7 @@ If you want to add another external drive to Nextcloud in the future, you need t
 
 ### 3. Add the External Drive to Nextcloud
 
-1. **Change Permissions:**
-   - Set the correct ownership for the new data directory:
-     ```
-     sudo chown -R www-data:www-data /mnt/new_nextcloud/data
-     ```
-
-2. **Add the New External Storage in Nextcloud:**
+1. **Add the New External Storage in Nextcloud:**
    - Log in to Nextcloud as an admin.
    - Go to `Settings` (click on your profile picture in the top right corner, then click `Settings`).
    - Scroll down to `Admin` section and click on `External storage`.
@@ -80,7 +80,7 @@ If you want to add another external drive to Nextcloud in the future, you need t
      - **Authentication**: Leave it blank.
      - **Available for**: Select which users or groups can access this external storage.
 
-3. **Save the Configuration:**
+2. **Save the Configuration:**
    - Click on the check mark to save the configuration.
    - You should now see the new external storage in your Nextcloud files.
 
