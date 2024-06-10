@@ -3,6 +3,20 @@
 # Error Handling
 set -euo pipefail
 
+# Trap to catch errors and perform cleanup tasks
+cleanup() {
+    echo "An error occurred. Cleaning up..."
+    # Add cleanup tasks here
+}
+trap 'cleanup' ERR
+# Validate input function
+validate_input() {
+    if [[ ! $1 =~ ^[0-9]+$ ]]; then
+        echo "Invalid input. Please enter a valid number."
+        exit 1
+    fi
+}
+
 # Define variables
 read -p "Enter the database name (e.g., nextcloud): " DB_NAME
 read -p "Enter the database user (e.g., nextclouduser): " DB_USER
@@ -22,6 +36,7 @@ echo "Installing Apache, MariaDB, and PHP..."
 sudo apt install apache2 mariadb-server libapache2-mod-php php-gd php-mysql php-curl php-mbstring php-intl php-gmp php-bcmath php-xml php-imagick php-zip wget ufw -y
 
 # Enable and start Apache and MariaDB
+echo "Enabling and starting Apache and MariaDB..."
 sudo systemctl enable apache2
 sudo systemctl enable mariadb
 sudo systemctl start apache2
@@ -88,7 +103,6 @@ sudo a2ensite default-ssl
 sudo bash -c 'sed -i "/ErrorLog \${APACHE_LOG_DIR}\/error.log/i RewriteEngine On\nRewriteCond %{HTTPS} off\nRewriteRule ^(.*)$ https://%{HTTP_HOST}\$1 [R=301,L]\n" /etc/apache2/sites-available/000-default.conf'
 sudo bash -c 'sed -i "/ErrorLog \${APACHE_LOG_DIR}\/error.log/i RewriteEngine On\nRewriteCond %{HTTPS} off\nRewriteRule ^(.*)$ https://%{HTTP_HOST}\$1 [R=301,L]\n" /etc/apache2/sites-available/nextcloud.conf'
 
-
 # Disable the default Apache site
 sudo a2dissite 000-default.conf
 
@@ -136,12 +150,34 @@ sudo sed -i '/^ServerTokens/s/.*/ServerTokens Prod/' /etc/apache2/conf-available
 sudo sed -i '/^ServerSignature/s/.*/ServerSignature Off/' /etc/apache2/conf-available/security.conf
 sudo sed -i '/^TraceEnable/s/.*/TraceEnable Off/' /etc/apache2/conf-available/security.conf
 
-# Configure external disk
-lsblk
-read -p "Enter the external disk device (e.g. /dev/sda1): " external_disk
-sudo mkfs.ext4 $external_disk
-sudo mkdir /mnt/external_disk1
-sudo mount $external_disk /mnt/external_disk1
+# Function to configure external disk
+configure_external_disk() {
+    local disk=$1
+    local format=$2
+    if [ "$format" = "yes" ]; then
+        sudo mkfs.ext4 $disk
+    fi
+    local mount_point="/mnt/external_disk$(echo $disk | tr -dc '0-9')"
+    sudo mkdir -p $mount_point
+    sudo mount $disk $mount_point
+    sudo chown -R www-data:www-data $mount_point
+    sudo chmod -R 755 $mount_point
+    if ! grep -q "$disk $mount_point ext4 defaults 0 2" /etc/fstab; then
+        sudo bash -c "echo '$disk $mount_point ext4 defaults 0 2' >> /etc/fstab"
+    fi
+}
+
+# Prompt user for number of disks
+read -p "Enter the number of external disks: " num_disks
+
+# Configure external disks
+for ((i=1; i<=$num_disks; i++)); do
+    read -p "Enter the device for external disk $i (e.g. /dev/sda1): " disk
+    read -p "Do you want to format disk $disk? (yes/no): " format
+    configure_external_disk $disk $format
+done
+
+echo "External disk configuration complete."
 
 # Set Permissions
 sudo chown -R www-data:www-data /mnt/external_disk1
