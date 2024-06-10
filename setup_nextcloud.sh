@@ -21,6 +21,7 @@ validate_input() {
 read -p "Enter the database name (e.g., nextcloud): " DB_NAME
 read -p "Enter the database user (e.g., nextclouduser): " DB_USER
 read -s -p "Enter the database password (e.g., password): " DB_PASSWORD
+echo
 read -p "Enter the Nextcloud installation directory (e.g., /var/www/nextcloud): " NEXTCLOUD_DIR
 read -p "Enter the PHP memory limit (e.g., 512M): " MEMORY_LIMIT
 read -p "Enter the PHP upload max filesize and the PHP post max size (e.g., 16G): " UPLOAD_MAX_FILESIZE
@@ -54,7 +55,6 @@ CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_gen
 CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD';
 GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';
 FLUSH PRIVILEGES;
-EXIT;
 EOF
 
 # Download Nextcloud
@@ -121,7 +121,8 @@ sudo crontab -u www-data -e <<EOF
 EOF
 
 # PHP configuration tweaks
-echo "Tweaking PHP configuration for PHP $PHP_VERSION..."
+echo "Tweaking PHP configuration..."
+PHP_VERSION=$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')
 sudo bash -c "cat >> /etc/php/$PHP_VERSION/apache2/php.ini <<EOF
 memory_limit = $MEMORY_LIMIT
 upload_max_filesize = $UPLOAD_MAX_FILESIZE
@@ -169,6 +170,7 @@ configure_external_disk() {
 
 # Prompt user for number of disks
 read -p "Enter the number of external disks: " num_disks
+validate_input $num_disks
 
 # Configure external disks
 for ((i=1; i<=$num_disks; i++)); do
