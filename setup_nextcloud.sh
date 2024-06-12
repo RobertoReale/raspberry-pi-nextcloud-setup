@@ -33,6 +33,24 @@ validate_ip() {
     fi
 }
 
+# Validate disk input
+
+validate_disk() {
+    if ! [[ "$1" =~ ^/dev/[a-z]+[0-9]+$ ]]; then
+        echo "Invalid disk input. Please enter a valid disk device (e.g., /dev/sda1)."
+        exit 1
+    fi
+}
+
+# Valide format input
+
+validate_format() {
+    if [[ "$1" != "yes" && "$1" != "no" ]]; then
+        echo "Invalid format input. Please enter 'yes' or 'no'."
+        exit 1
+    fi
+}
+
 # Function to prompt for inputs and validate them
 prompt_and_validate() {
     local prompt_message=$1
@@ -191,22 +209,24 @@ sudo sed -i '/^TraceEnable/s/.*/TraceEnable Off/' /etc/apache2/conf-available/se
 configure_external_disk() {
     local disk=$1
     local format=$2
-    local mount_point="/mnt/external_disk$(echo $disk | tr -dc '0-9')"
+    local mount_point="/mnt/external_disk$(echo $disk | tr -dc 'a-zA-Z0-9')"
+
     if [ "$format" = "yes" ]; then
         sudo mkfs.ext4 "$disk" || { echo "Failed to format disk $disk"; exit 1; }
     fi
+
     sudo mkdir -p "$mount_point" || { echo "Failed to create mount point $mount_point"; exit 1; }
     sudo mount "$disk" "$mount_point" || { echo "Failed to mount disk $disk"; exit 1; }
     sudo chown -R www-data:www-data "$mount_point" || { echo "Failed to set ownership for $mount_point"; exit 1; }
     sudo chmod -R 755 "$mount_point" || { echo "Failed to set permissions for $mount_point"; exit 1; }
+
     if ! grep -q "$disk $mount_point ext4 defaults 0 2" /etc/fstab; then
-        sudo bash -c "echo '$disk $mount_point ext4 defaults 0 2' >> /etc/fstab" || { echo "Failed to update /etc/fstab"; exit 1; }
+        echo "$disk $mount_point ext4 defaults 0 2" | sudo tee -a /etc/fstab || { echo "Failed to update /etc/fstab"; exit 1; }
         sudo systemctl daemon-reload || { echo "Failed to reload systemd daemon"; exit 1; }
     fi
 }
 
 # Prompt user for number of external disks
-lsblk
 read -p "Enter the number of external disks you want to configure: " num_disks
 validate_input "$num_disks"
 
@@ -214,14 +234,11 @@ validate_input "$num_disks"
 for ((i=1; i<=$num_disks; i++)); do
     lsblk
     read -p "Enter the device for external disk $i (e.g. /dev/sda1): " disk
+    validate_disk "$disk"
     read -p "Do you want to format disk $disk? (yes/no): " format
+    validate_format "$format"
     configure_external_disk "$disk" "$format" || { echo "Failed to configure disk $disk"; exit 1; }
-
-    # Set permissions for each external disk
-    sudo chown -R www-data:www-data "/mnt/external_disk$(echo $disk | tr -dc '0-9')" || { echo "Failed to set ownership for /mnt/external_disk$(echo $disk | tr -dc '0-9')"; exit 1; }
-    sudo chmod -R 755 "/mnt/external_disk$(echo $disk | tr -dc '0-9')" || { echo "Failed to set permissions for /mnt/external_disk$(echo $disk | tr -dc '0-9')"; exit 1; }
 done
 
 echo "External disk configuration complete."
-
 echo "Configuration complete. Check that Nextcloud is working properly. Add the external drive to Nextcloud using the External Storage app."
