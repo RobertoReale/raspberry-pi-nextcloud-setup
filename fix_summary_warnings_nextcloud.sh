@@ -31,9 +31,6 @@ set_maintenance_window() {
 
 # Function to configure Apache for well-known URLs
 configure_well_known() {
-    # Ask user for Nextcloud installation directory
-    read -p "Enter the Nextcloud installation directory (e.g., /var/www/nextcloud): " nextcloud_dir
-
     # Check if nextcloud.conf exists
     nextcloud_conf="/etc/apache2/sites-available/nextcloud.conf"
     if [ ! -f "$nextcloud_conf" ]; then
@@ -41,11 +38,18 @@ configure_well_known() {
         exit 1
     fi
 
-    # Add Rewrite rules for well-known URLs
-    sudo sed -i '/<VirtualHost/a\
-    RewriteEngine on
-    RewriteRule ^\.well-known/carddav /remote.php/dav/ [R=301,L]
-    RewriteRule ^\.well-known/caldav /remote.php/dav/ [R=301,L]' "$nextcloud_conf"
+    # Ensure RewriteEngine directive is present only once and add Rewrite rules for well-known URLs
+    if ! grep -q "RewriteEngine on" "$nextcloud_conf"; then
+        sudo sed -i '/<VirtualHost/a\    RewriteEngine on' "$nextcloud_conf"
+    fi
+    
+    if ! grep -q "RewriteRule ^\.well-known/carddav" "$nextcloud_conf"; then
+        sudo sed -i '/RewriteEngine on/a\    RewriteRule ^\.well-known/carddav /remote.php/dav/ [R=301,L]' "$nextcloud_conf"
+    fi
+    
+    if ! grep -q "RewriteRule ^\.well-known/caldav" "$nextcloud_conf"; then
+        sudo sed -i '/RewriteEngine on/a\    RewriteRule ^\.well-known/caldav /remote.php/dav/ [R=301,L]' "$nextcloud_conf"
+    fi
 
     # Enable mod_rewrite
     sudo a2enmod rewrite
