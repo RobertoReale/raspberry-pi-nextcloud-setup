@@ -14,14 +14,14 @@ Usage:
 - Clone or download the installation script from the repository to your Raspberry Pi.
 Make the Script Executable:
 ```
-chmod +x install_nextcloud.sh
+chmod +x setup_nextcloud.sh
 ```
 
 - Run the Script:
 
 Execute the script with sudo privileges:
 ```
-sudo ./install_nextcloud.sh
+sudo ./setup_nextcloud.sh
 ```
 
 - Follow the Prompts:
