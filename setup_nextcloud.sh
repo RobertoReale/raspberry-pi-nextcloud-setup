@@ -127,7 +127,7 @@ sudo bash -c "cat > /etc/apache2/sites-available/nextcloud.conf <<EOF
   SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
 
   <IfModule mod_headers.c>
-    Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains"
+    Header always set Strict-Transport-Security \"max-age=15552000; includeSubDomains\"
   </IfModule>
 </VirtualHost>
 EOF"
