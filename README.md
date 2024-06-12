@@ -64,27 +64,6 @@ Configure in Nextcloud:
 After running the script, follow the instructions provided to add the new external storage in Nextcloud's settings.
 By using these scripts, users can streamline the setup and management of their Nextcloud instances, enhancing storage capacity and accessibility with ease.
 
-# Undo Nextcloud Installation Script
-This script provides a convenient way to undo the changes made during the installation of Nextcloud on a Raspberry Pi. It reverses configuration changes made to Apache, MariaDB, PHP, firewall rules, and other system settings, effectively removing the Nextcloud instance from the system.
-
-Features:
-- Error Handling: Utilizes error handling mechanisms to ensure a smooth execution and rollback process.
-- Comprehensive Undo: Reverts changes made to Apache configuration, MariaDB database, PHP settings, firewall rules, and additional security/performance tweaks.
-- Flexibility: Can be easily modified to include additional undo functions for specific configurations if needed.
-
-Usage:
-- Run the script with sudo privileges:
-```
-sudo ./undo_nextcloud_installation.sh
-```
-
-- Follow the Prompts:
-
-The script will prompt you for confirmation before proceeding with the undo process. Follow the on-screen instructions to confirm.
-
-- Completion:
-Once the script completes, all changes made during the Nextcloud installation will be reverted, and the system will be restored to its pre-installation state.
-
 # Nextcloud Configuration Script
 This Bash script provides a set of utilities to manage and configure a Nextcloud installation. It offers options to install essential software, set maintenance windows, and configure Apache for Nextcloud's well-known URLs.
 
