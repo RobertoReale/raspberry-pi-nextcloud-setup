@@ -207,7 +207,7 @@ configure_external_disk() {
 
 # Prompt user for number of external disks
 lsblk
-read -p "Enter the number of external disks: " num_disks
+read -p "Enter the number of external disks you want to configure: " num_disks
 validate_input "$num_disks"
 
 # Configure external disks
