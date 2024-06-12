@@ -62,10 +62,6 @@ prompt_and_validate "Enter the PHP upload max filesize and the PHP post max size
 prompt_and_validate "Enter the PHP max execution time and the PHP max input time (in seconds, e.g., 3600): " MAX_INPUT_TIME
 prompt_and_validate "Enter the upload chunk size in bytes (e.g., 20MB): " CHUNK_SIZE
 
-# Update and upgrade the system
-echo "Updating system..."
-sudo apt update -y && sudo apt upgrade -y
-
 # Install Apache, MariaDB, and PHP
 echo "Installing Apache, MariaDB, and PHP..."
 sudo apt install apache2 mariadb-server libapache2-mod-php php-gd php-mysql php-curl php-mbstring php-intl php-gmp php-bcmath php-xml php-imagick php-zip -y
