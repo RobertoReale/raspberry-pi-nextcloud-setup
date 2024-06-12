@@ -10,10 +10,25 @@ cleanup() {
 }
 trap 'cleanup' ERR
 
-# Validate input function
+# Ensure the script is run with sudo
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root (use sudo)"
+   exit 1
+fi
+
+# Validate input function for numbers
 validate_input() {
     if [[ ! $1 =~ ^[0-9]+$ ]]; then
         echo "Invalid input. Please enter a valid number."
+        exit 1
+    fi
+}
+
+# Validate IP address
+validate_ip() {
+    local ip=$1
+    if ! [[ $ip =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "Invalid IP address format. Please enter a valid IP."
         exit 1
     fi
 }
@@ -37,6 +52,7 @@ prompt_and_validate() {
 
 # Define variables
 prompt_and_validate "Enter the server IP address (e.g., 192.168.1.14): " SERVER_IP
+validate_ip "$SERVER_IP"
 prompt_and_validate "Enter the database name (e.g., nextcloud): " DB_NAME
 prompt_and_validate "Enter the database user (e.g., nextclouduser): " DB_USER
 prompt_and_validate "Enter the database password (e.g., password): " DB_PASSWORD true
@@ -52,7 +68,7 @@ sudo apt update -y && sudo apt upgrade -y
 
 # Install Apache, MariaDB, and PHP
 echo "Installing Apache, MariaDB, and PHP..."
-sudo apt install apache2 mariadb-server libapache2-mod-php php-gd php-mysql php-curl php-mbstring php-intl php-gmp php-bcmath php-xml php-imagick php-zip wget ufw -y
+sudo apt install apache2 mariadb-server libapache2-mod-php php-gd php-mysql php-curl php-mbstring php-intl php-gmp php-bcmath php-xml php-imagick php-zip -y
 
 # Enable and start Apache and MariaDB
 echo "Enabling and starting Apache and MariaDB..."
@@ -138,7 +154,7 @@ sudo a2dissite 000-default.conf
 sudo systemctl restart apache2
 
 # Complete installation via web interface
-echo "Installation complete. Please navigate to your Raspberry Pi's IP address (http://$SERVER_IP) to complete the setup via the web interface. Remember to activate the Nextcloud "External storage support" app."
+echo "Installation complete. Please navigate to your Raspberry Pi's IP address (http://$SERVER_IP) to complete the setup via the web interface. Remember to activate the Nextcloud 'External storage support' app."
 read -p "Press ENTER to continue once setup is complete..."
 
 # Set up cron job for Nextcloud
@@ -167,14 +183,6 @@ sudo -u www-data php "$NEXTCLOUD_DIR/occ" config:system:set file_chunking.split_
 # Restart Apache to apply PHP changes
 sudo systemctl restart apache2
 
-# Configure firewall if not enabled
-echo "Configuring firewall..."
-sudo ufw status | grep -q inactive && sudo ufw enable
-sudo ufw allow 22/tcp # Allow SSH traffic
-sudo ufw allow 80/tcp # Allow HTTP traffic
-sudo ufw allow 443/tcp # Allow HTTPS traffic
-sudo ufw enable # Enable the firewall
-
 # Additional Security and Performance Tweaks
 echo "Applying additional security and performance tweaks..."
 
@@ -187,16 +195,17 @@ sudo sed -i '/^TraceEnable/s/.*/TraceEnable Off/' /etc/apache2/conf-available/se
 configure_external_disk() {
     local disk=$1
     local format=$2
+    local mount_point="/mnt/external_disk$(echo $disk | tr -dc '0-9')"
     if [ "$format" = "yes" ]; then
         sudo mkfs.ext4 "$disk" || { echo "Failed to format disk $disk"; exit 1; }
     fi
-    local mount_point="/mnt/external_disk$(echo $disk | tr -dc '0-9')"
     sudo mkdir -p "$mount_point" || { echo "Failed to create mount point $mount_point"; exit 1; }
     sudo mount "$disk" "$mount_point" || { echo "Failed to mount disk $disk"; exit 1; }
     sudo chown -R www-data:www-data "$mount_point" || { echo "Failed to set ownership for $mount_point"; exit 1; }
     sudo chmod -R 755 "$mount_point" || { echo "Failed to set permissions for $mount_point"; exit 1; }
     if ! grep -q "$disk $mount_point ext4 defaults 0 2" /etc/fstab; then
         sudo bash -c "echo '$disk $mount_point ext4 defaults 0 2' >> /etc/fstab" || { echo "Failed to update /etc/fstab"; exit 1; }
+        sudo systemctl daemon-reload || { echo "Failed to reload systemd daemon"; exit 1; }
     fi
 }
 
