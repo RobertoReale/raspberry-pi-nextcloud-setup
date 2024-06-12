@@ -102,7 +102,7 @@ sudo a2enmod headers
 
 # Create Apache configuration for Nextcloud with SSL
 echo "Configuring Apache for Nextcloud..."
-sudo bash -c "cat > /etc/apache2/sites-available/nextcloud.conf <<EOF
+sudo tee /etc/apache2/sites-available/nextcloud.conf > /dev/null <<EOF
 <VirtualHost *:80>
   ServerName $SERVER_IP
   Redirect permanent / https://$SERVER_IP/
@@ -127,15 +127,16 @@ sudo bash -c "cat > /etc/apache2/sites-available/nextcloud.conf <<EOF
   SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
 
   <IfModule mod_headers.c>
-    Header always set Strict-Transport-Security \"max-age=15552000; includeSubDomains\"
+    Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains"
   </IfModule>
 </VirtualHost>
-EOF"
+EOF
 
 # Enable the Nextcloud and SSL site and disable the default site
 sudo a2ensite nextcloud.conf
 sudo a2ensite default-ssl.conf
 sudo a2dissite 000-default.conf
+sudo systemctl restart apache2
 
 # Complete installation via web interface
 echo "Installation complete. Please navigate to your Raspberry Pi's IP address (http://$SERVER_IP) to complete the setup via the web interface."
