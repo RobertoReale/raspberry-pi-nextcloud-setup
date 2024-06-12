@@ -85,6 +85,41 @@ The script will prompt you for confirmation before proceeding with the undo proc
 - Completion:
 Once the script completes, all changes made during the Nextcloud installation will be reverted, and the system will be restored to its pre-installation state.
 
+# Nextcloud Configuration Script
+This Bash script provides a set of utilities to manage and configure a Nextcloud installation. It offers options to install essential software, set maintenance windows, and configure Apache for Nextcloud's well-known URLs.
+
+Features:
+- Install smbclient and restart Apache2:
+Installs smbclient using apt.
+Restarts the Apache2 service to apply changes.
+
+- Set Maintenance Window Start Time:
+Prompts the user for the Nextcloud installation directory.
+Updates the config.php file to enable maintenance mode and set the maintenance window start time to 01:00 AM UTC.
+
+- Configure Apache for Well-Known URLs:
+Prompts the user for the Nextcloud installation directory.
+Adds rewrite rules to the Apache configuration to properly redirect .well-known URLs for CardDAV and CalDAV.
+Enables the mod_rewrite module in Apache.
+Restarts the Apache2 service to apply changes.
+
+Usage:
+- Clone the repository:
+  ```
+  git clone https://github.com/yourusername/nextcloud-config-script.git
+  cd nextcloud-config-script
+  ```
+
+- Run the script:
+  ```
+  ./nextcloud-config.sh
+  ```
+
+- Select an option:
+  * Install smbclient and restart Apache2.
+  * Set maintenance window start time in Nextcloud config.
+  *  Configure Apache for well-known URLs.
+
 # Disclaimer
 The installation script for Nextcloud on Raspberry Pi and the add external storage script provided herein are intended for educational and personal use only. While efforts have been made to ensure the scripts are accurate and reliable, they are provided "as is" without any warranty of any kind, express or implied.
 
