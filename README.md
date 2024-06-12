@@ -82,6 +82,9 @@ Adds rewrite rules to the Apache configuration to properly redirect .well-known 
 Enables the mod_rewrite module in Apache.
 Restarts the Apache2 service to apply changes.
 
+- Configure PHP OPcache for Nextcloud:
+- Adjusts the PHP OPcache settings to optimize Nextcloud performance.
+
 Usage:
 - Clone the repository:
   ```
@@ -97,7 +100,8 @@ Usage:
 - Select an option:
   * Install smbclient and restart Apache2.
   * Set maintenance window start time in Nextcloud config.
-  *  Configure Apache for well-known URLs.
+  * Configure Apache for well-known URLs.
+  * Configure PHP OPcache for Nextcloud
 
 # Disclaimer
 The installation script for Nextcloud on Raspberry Pi and the add external storage script provided herein are intended for educational and personal use only. While efforts have been made to ensure the scripts are accurate and reliable, they are provided "as is" without any warranty of any kind, express or implied.
