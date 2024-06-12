@@ -212,6 +212,7 @@ validate_input "$num_disks"
 
 # Configure external disks
 for ((i=1; i<=$num_disks; i++)); do
+    lsblk
     read -p "Enter the device for external disk $i (e.g. /dev/sda1): " disk
     read -p "Do you want to format disk $disk? (yes/no): " format
     configure_external_disk "$disk" "$format" || { echo "Failed to configure disk $disk"; exit 1; }
