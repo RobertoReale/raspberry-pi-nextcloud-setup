@@ -7,6 +7,7 @@ install_smbclient() {
 }
 
 # Function to set maintenance window start time in Nextcloud config
+# Function to set maintenance window start time in Nextcloud config
 set_maintenance_window() {
     # Ask user for Nextcloud installation directory
     read -p "Enter Nextcloud installation directory: " nextcloud_dir
@@ -18,9 +19,9 @@ set_maintenance_window() {
         exit 1
     fi
 
-    # Set maintenance window start time to 1 (01:00am - 05:00am UTC)
-    sudo sed -i "s/'maintenance' => false,/'maintenance' => true,/" "$config_file"
-    sudo sed -i "s/'maintenance_window_start' => 0,/'maintenance_window_start' => 1,/" "$config_file"
+    # Add maintenance_window_start parameter to config.php
+    sudo sed -i "/'installed' => true,/a\
+    'maintenance_window_start' => 1," "$config_file"
 }
 
 # Function to configure Apache for well-known URLs
