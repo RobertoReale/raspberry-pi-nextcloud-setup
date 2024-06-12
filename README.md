@@ -1,114 +1,104 @@
-# raspberry-pi-nextcloud-setup
-This repository contains a Bash script for setting up Nextcloud on a Raspberry Pi. Nextcloud is a self-hosted file sharing and collaboration platform that allows you to store your data, access it from anywhere, and collaborate with others. This script automates the installation process, including the setup of Apache, MariaDB, PHP, SSL, and configuration of Nextcloud itself.
+# raspberry-pi-nextcloud-setup:
+This installation script automates the setup process for Nextcloud on a Raspberry Pi, including the installation of Apache, MariaDB, PHP, and the configuration of necessary settings. It streamlines the deployment of Nextcloud, a popular self-hosted cloud storage platform, making it accessible for personal or small-scale use cases.
 
 Features:
-- Automated installation of Nextcloud on Raspberry Pi.
-- Configuration of Apache, MariaDB, and PHP.
-- SSL setup for secure connections.
-- Integration with external storage devices.
-- Cron job configuration for Nextcloud maintenance tasks.
-- Memory limit optimization for improved performance.
-
+- Automated Setup: The script automates the entire setup process, reducing manual configuration efforts.
+- Error Handling: Incorporates error handling mechanisms to catch and handle errors gracefully during installation.
+- Security Enhancements: Implements security best practices, such as securing MariaDB installation and configuring SSL for Apache.
+- Customization: Allows users to customize various settings such as server IP address, database credentials, PHP configuration, and more.
+- External Disk Support: Provides support for adding external storage disks to Nextcloud, expanding storage capacity.
 
 Usage:
-- Clone this repository to your Raspberry Pi.
-- Make the script executable (chmod +x setup_nextcloud.sh).
-- Run the script (./setup_nextcloud.sh) and follow the prompts.
-- Access Nextcloud via the provided IP address and complete the setup via the web interface.
-- Contributions:
-- Contributions and suggestions are welcome! Feel free to fork this repository, make changes, and submit a pull request.
+- Download the Script:
 
-# Add external storage
-If you want to add another external drive to Nextcloud in the future, you need to follow these steps:
+- Clone or download the installation script from the repository to your Raspberry Pi.
+Make the Script Executable:
+```
+chmod +x install_nextcloud.sh
+```
 
-### 1. Prepare the External Drive
+- Run the Script:
 
-1. **Connect the External Drive:**
-   - Plug your new external drive into a USB port on your Raspberry Pi.
+Execute the script with sudo privileges:
+```
+sudo ./install_nextcloud.sh
+```
 
-2. **Format the Drive:**
-   - Determine the device name of your new drive by running:
-     ```
-     lsblk
-     ```
-   - Identify your new drive (e.g., `/dev/sdb` or `/dev/sdc1`) and format it with a suitable filesystem (e.g., ext4):
-     ```
-     sudo mkfs.ext4 /dev/sdb1
-     ```
+- Follow the Prompts:
 
-### 2. Mount the External Drive
+The script will prompt you for various configurations, such as server IP address, database credentials, PHP settings, etc. Follow the prompts and provide the required information.
+Complete Installation:
 
-1. **Create a Mount Point:**
-   - Create a directory where you want to mount the new drive:
-     ```
-     sudo mkdir /mnt/new_nextcloud/data
-     ```
+Once the script completes, navigate to your Raspberry Pi's IP address in a web browser to complete the Nextcloud setup via the web interface.
 
-2. **Mount the Drive:**
-   - Mount the drive to this directory. Select the correct drive (e.g., `/dev/sdb1`):
-     ```
-     sudo mount /dev/sdb1 /mnt/new_nextcloud/data
-     ```
+# Add External Storage Script for Nextcloud
+This script simplifies the process of adding additional external storage disks to an existing Nextcloud instance. It automates the steps required to mount the disk, update /etc/fstab, set permissions, and notify the user to configure the new external storage within Nextcloud.
 
-2. **Set Permissions:**
-     ```
-     sudo chown -R www-data:www-data /mnt/new_nextcloud/data
-     sudo chmod -R 755 /mnt/new_nextcloud/data
-     ```
+Features:
+- Ease of Use: Provides a straightforward method to add external storage disks without manual intervention.
+- Automated Mounting: Automates disk mounting and updates /etc/fstab for automatic mounting on system boot.
+- Error Handling: Includes error handling mechanisms to handle failures gracefully during disk addition.
+- Compatibility: Compatible with the installation script for Nextcloud on Raspberry Pi, seamlessly integrating with existing setups.
 
-4. **Ensure Automatic Mounting:**
-   - Edit the `/etc/fstab` file to make sure the new drive mounts automatically at boot:
-     ```
-     sudo nano /etc/fstab
-     ```
-   - Add the following line (adjust for the correct device and mount point). Select the correct drive (e.g., `/dev/sdb1`):
-     ```
-     /dev/sdb1 /mnt/new_nextcloud/data ext4 defaults 0 2
-     ```
-   - Save and close the file.
+Usage:
+- Download the Script:
 
-### 3. Add the External Drive to Nextcloud
+- Clone or download the script from the repository to your Raspberry Pi.
+Make the Script Executable:
+```
+chmod +x add_external_disk.sh
+```
 
-1. **Add the New External Storage in Nextcloud:**
-   - Log in to Nextcloud as an admin.
-   - Go to `Settings` (click on your profile picture in the top right corner, then click `Settings`).
-   - Scroll down to `Admin` section and click on `External storage`.
-   - In the `External storage` section, configure the new external storage:
-     - **Folder name**: Give a name for the new external storage.
-     - **External storage**: Select `Local`.
-     - **Configuration**: Enter the path to the new mount point (e.g., `/mnt/new_nextcloud/data`).
-     - **Authentication**: Leave it blank.
-     - **Available for**: Select which users or groups can access this external storage.
+- Run the Script:
 
-2. **Save the Configuration:**
-   - Click on the check mark to save the configuration.
-   - You should now see the new external storage in your Nextcloud files.
+- Execute the script with sudo privileges:
+```
+sudo ./add_external_disk.sh
+```
 
-### 4. Verify the Setup
+- Follow the Prompts:
 
-1. **Check Mount Points:**
-   - Verify that both the old and new external drives are mounted correctly:
-     ```
-     df -h
-     ```
+The script will prompt you to enter the device for the new external disk and whether to format it.
+Configure in Nextcloud:
 
-2. **Test Access:**
-   - Log in to Nextcloud and ensure you can access files on both the original and new external storage.
+After running the script, follow the instructions provided to add the new external storage in Nextcloud's settings.
+By using these scripts, users can streamline the setup and management of their Nextcloud instances, enhancing storage capacity and accessibility with ease.
 
-# DISCLAIMER:
-This script is provided as-is and may require customization based on your specific setup. Use at your own risk.
-There are some points that may require attention:
+# Undo Nextcloud Installation Script
+This script provides a convenient way to undo the changes made during the installation of Nextcloud on a Raspberry Pi. It reverses configuration changes made to Apache, MariaDB, PHP, firewall rules, and other system settings, effectively removing the Nextcloud instance from the system.
 
-1. **MySQL Security**: After running `mysql_secure_installation`, it would be a good idea to check if remote access to MySQL is disabled, especially if this server is not intended to be accessible from the external network.
+Features:
+- Error Handling: Utilizes error handling mechanisms to ensure a smooth execution and rollback process.
+- Comprehensive Undo: Reverts changes made to Apache configuration, MariaDB database, PHP settings, firewall rules, and additional security/performance tweaks.
+- Flexibility: Can be easily modified to include additional undo functions for specific configurations if needed.
 
-2. **SSL Configuration**: Using self-generated certificates may be acceptable for a test environment, but for a production environment it is best to obtain a signed certificate from a trusted Certification Authority (CA).
+Usage:
+- Run the script with sudo privileges:
+```
+sudo ./undo_nextcloud_installation.sh
+```
 
-3. **Auto-mount external disk**: Make sure the external disk is mounted correctly when the system boots. You may want to check the mount options in the `/etc/fstab` file to ensure they are appropriate for your specific use case.
+- Follow the Prompts:
 
-4. **Cron Job for Nextcloud**: The cron job execution frequency (every 15 minutes) may be suitable for many installations, but may need to be adjusted based on the specific needs of your environment.
+The script will prompt you for confirmation before proceeding with the undo process. Follow the on-screen instructions to confirm.
 
-5. **Error Control**: Be sure to include error handling in your code, especially in system operations and MySQL commands, to ensure that any problems are handled appropriately.
+- Completion:
+Once the script completes, all changes made during the Nextcloud installation will be reverted, and the system will be restored to its pre-installation state.
 
-6. **Backup and Recovery**: Make sure you have a backup and recovery plan in place, especially before making significant changes to your system such as installing and configuring new services.
+# Disclaimer
+The installation script for Nextcloud on Raspberry Pi and the add external storage script provided herein are intended for educational and personal use only. While efforts have been made to ensure the scripts are accurate and reliable, they are provided "as is" without any warranty of any kind, express or implied.
 
-Always remember to run your code in a test environment before deploying it to a production environment and take necessary precautions to ensure system security and reliability.
+Limitation of Liability
+The authors and contributors of these scripts shall not be held liable for any damages or losses arising from the use or inability to use the scripts, including but not limited to direct, indirect, incidental, special, or consequential damages, or any loss of data, revenue, or profits, arising out of or in connection with the use or performance of these scripts.
+
+Use at Your Own Risk
+Users are advised to review and understand the scripts before executing them on their systems. It is recommended to backup any important data and configurations before running the scripts. The user assumes full responsibility for any risks associated with the use of these scripts.
+
+Third-Party Dependencies
+These scripts may utilize third-party tools or libraries. Users are responsible for ensuring compliance with the licenses and terms of use of any third-party software utilized by the scripts.
+
+Modification and Distribution
+Users are welcome to modify and distribute these scripts for personal or educational purposes. However, any redistribution should include this disclaimer and retain attribution to the original authors and contributors.
+
+By using these scripts, you acknowledge that you have read, understood, and agree to the terms and conditions outlined in this disclaimer. If you do not agree with these terms, you should not use these scripts.
+
