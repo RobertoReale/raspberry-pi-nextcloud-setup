@@ -28,8 +28,12 @@ undo_apache_config() {
     else
         echo "Nextcloud site configuration not found. Skipping."
     fi
-    sudo a2dissite default-ssl.conf
-    sudo a2ensite 000-default.conf
+    if [ -f /etc/apache2/sites-enabled/default-ssl.conf ]; then
+        sudo a2dissite default-ssl.conf
+    fi
+    if [ ! -f /etc/apache2/sites-enabled/000-default.conf ]; then
+        sudo a2ensite 000-default.conf
+    fi
     sudo systemctl restart apache2
 }
 
