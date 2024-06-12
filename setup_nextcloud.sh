@@ -40,7 +40,6 @@ prompt_and_validate "Enter the server IP address (e.g., 192.168.1.14): " SERVER_
 prompt_and_validate "Enter the database name (e.g., nextcloud): " DB_NAME
 prompt_and_validate "Enter the database user (e.g., nextclouduser): " DB_USER
 prompt_and_validate "Enter the database password (e.g., password): " DB_PASSWORD true
-echo
 prompt_and_validate "Enter the Nextcloud installation directory (e.g., /var/www/nextcloud): " NEXTCLOUD_DIR
 prompt_and_validate "Enter the PHP memory limit (e.g., 512M): " MEMORY_LIMIT
 prompt_and_validate "Enter the PHP upload max filesize and the PHP post max size (e.g., 16G): " UPLOAD_MAX_FILESIZE
@@ -139,12 +138,17 @@ sudo a2dissite 000-default.conf
 sudo systemctl restart apache2
 
 # Complete installation via web interface
-echo "Installation complete. Please navigate to your Raspberry Pi's IP address (http://$SERVER_IP) to complete the setup via the web interface."
+echo "Installation complete. Please navigate to your Raspberry Pi's IP address (http://$SERVER_IP) to complete the setup via the web interface. Remember to activate the Nextcloud "External storage support" app."
 read -p "Press ENTER to continue once setup is complete..."
 
 # Set up cron job for Nextcloud
 echo "Setting up cron job..."
-(crontab -u www-data -l; echo "*/15 * * * * php -f $NEXTCLOUD_DIR/cron.php") | crontab -u www-data -
+CRON_JOB="*/15 * * * * php -f $NEXTCLOUD_DIR/cron.php"
+TEMP_CRON=$(mktemp)
+sudo crontab -u www-data -l > "$TEMP_CRON" 2>/dev/null || true
+echo "$CRON_JOB" >> "$TEMP_CRON"
+sudo crontab -u www-data "$TEMP_CRON"
+rm "$TEMP_CRON"
 
 # PHP configuration tweaks
 echo "Tweaking PHP configuration..."
@@ -166,8 +170,10 @@ sudo systemctl restart apache2
 # Configure firewall if not enabled
 echo "Configuring firewall..."
 sudo ufw status | grep -q inactive && sudo ufw enable
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
+sudo ufw allow 22/tcp # Allow SSH traffic
+sudo ufw allow 80/tcp # Allow HTTP traffic
+sudo ufw allow 443/tcp # Allow HTTPS traffic
+sudo ufw enable # Enable the firewall
 
 # Additional Security and Performance Tweaks
 echo "Applying additional security and performance tweaks..."
@@ -195,6 +201,7 @@ configure_external_disk() {
 }
 
 # Prompt user for number of external disks
+lsblk
 read -p "Enter the number of external disks: " num_disks
 validate_input "$num_disks"
 
